@@ -1,0 +1,235 @@
+/* General Styling */
+body {
+    font-family: 'Arial', sans-serif; /* More modern font */
+    line-height: 1.4;
+    margin: 10px;
+    background-color: #f8f8f8; /* Lighter gray background */
+    color: #333; /* Dark gray text */
+}
+
+main {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff; /* White form background */
+    border-radius: 8px; /* Softer rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+}
+
+h1 {
+    text-align: center;
+    color: #333; /* Dark gray heading */
+    margin-bottom: 10px; /* Added margin for spacing */
+}
+
+.form-group {
+    margin-bottom: 10px; /* Increased spacing */
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%; /* Full width inputs */
+    padding: 8px; /* Increased padding */
+    border: 1px solid #d9d9d9; /* Lighter border */
+    border-radius: 4px; /* Softer rounded corners */
+    box-sizing: border-box;
+    font-size: 14px; /* Slightly larger font size */
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075); /* Subtle input shadow */
+}
+
+button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added shadow */
+}
+
+    button:hover {
+        background-color: #45a049; /* Darker green on hover */
+    }
+
+.error {
+    color: #a94442; /* Darker red */
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.messages ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+.messages li {
+    padding: 8px 12px; /* Increased padding */
+    margin-bottom: 5px;
+    border-radius: 4px;
+    background-color: #f5f5f5; /* Light gray background for messages */
+    border: 1px solid #ddd; /* Added border */
+}
+
+    .messages li.error {
+        background-color: #f2dede; /* Lighter red */
+        color: #a94442; /* Darker red */
+        border-color: #ebccd1; /* Matching border color */
+    }
+
+    .messages li.success {
+        background-color: #dff0d8; /* Lighter green */
+        color: #3c763d; /* Darker green */
+        border-color: #d6e9c6; /* Matching border color */
+    }
+
+/*Specific Styling*/
+
+.fuel-input-group {
+    margin-bottom: 10px; /* Decreased spacing */
+}
+
+    .fuel-input-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+.visualisation {
+    display: inline-block;
+    width: 100px;
+    height: 20px;
+    background-color: #ddd;
+    margin-left: 10px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+#fuel-amount-display::before {
+    content: "";
+    display: inline-block;
+    background-color: #5cb85c; /* Slightly darker green */
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+.price-container {
+    display: flex;
+    flex-direction: column; /* Stack label above the input/select row */
+}
+
+    .price-container label {
+        margin-bottom: 10px; /* Add spacing below the label */
+    }
+
+.input-select-group {
+    display: flex; /* Make this a flex container */
+    align-items: center; /* Vertically align items */
+}
+
+    .input-select-group > * { /* Target direct children of .input-select-group */
+        margin-right: 10px; /* Add spacing between input and select */
+    }
+
+.two-column-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal-width columns */
+    grid-gap: 20px; /* Space between columns */
+    margin-bottom: 20px; /* Added margin to improve spacing */
+}
+
+.column {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.left-column, .right-column {
+    /* Add any additional styling for each column here if needed. */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) { /* Adjust breakpoint if needed */
+    .two-column-container {
+        grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
+    }
+}
+#loadingOverlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Spinner Animation */
+#loadingSpinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #007BFF;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Keyframe Animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.info-icon {
+    display: inline-block;
+    margin-left: 5px;
+    width: 16px;
+    height: 16px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 16px;
+    font-weight: bold;
+    position: relative; /* Needed for absolute positioning of tooltip */
+}
+
+    .info-icon:hover .tooltip {
+        display: block; /* Show tooltip on hover */
+    }
+
+.tooltip {
+    display: none;
+    position: absolute;
+    background: #333;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    top: 50%;
+    left: 120%; /* Position tooltip to the right of the icon */
+    transform: translateY(-50%);
+    z-index: 100;
+}

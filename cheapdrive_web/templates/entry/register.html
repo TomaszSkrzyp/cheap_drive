@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'entry/login_register.css' %}">
+</head>
+<body>
+    <form method="post" action="{% url 'entry:register' %}" class="register-form">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Django renders the form fields -->
+        <button type="submit">Register</button>
+    </form>
+
+    <div class="messages">
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li class="{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</body>
+</html>

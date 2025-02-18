@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'refill/results.css' %}">
+    <title>Trip Summary</title>
+
+</head>
+<body>
+    <div id="confirmationModal" style="display: none;">
+        <div class="modal-content">
+            <p>
+                Are you sure you want to leave this page? You will be redirected to the route choice page
+            </p>
+            <button id="confirmBack">Yes, leave</button>
+            <button id="cancelBack">Cancel</button>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Trip Summary</h1>
+        <div class="details">
+            <p><strong>Trip starting address:</strong> {{ origin }}</p>
+            <p><strong>Trip destination:</strong> {{ destination }}</p>
+            <p><strong>Price:</strong> {{ cost_used }}</p>
+            <p><strong>Duration:</strong> {{ duration }}</p>
+            <p><strong>Distance:</strong> {{ distance }}</p>
+            <p><strong>Fuel left:</strong> {{ fuel_left }}</p>
+
+            {% if needs_refill %}
+            <p><strong>Status:</strong> <span style="color: red;">Refill Needed</span></p>
+            <p><strong>Refill price:</strong> {{ refill_price }}</p>
+            {% else %}
+            <p><strong>Status:</strong> <span style="color: green;">No Refill Needed</span></p>
+            {% endif %}
+
+        </div>
+    </div>
+    <div class="container">
+        <h2>Trip Pathway</h2>
+        <div class="trip-pathway">
+
+            <!-- Start Location -->
+            <div class="trip-point origin">
+                <strong>Trip Origin:</strong> {{ origin }}
+            </div>
+
+            <!-- Trip Segments -->
+            {% for segment in trip_segments %}
+            <div class="trip-segment">
+                {% if segment.station %}
+                <div class="station">
+                    <strong>🛑 Stop at: {{ segment.origin }} ⛽ Fuel refilled: {{ segment.refill }}</strong>
+                </div>
+
+                {% endif %}
+                <div class="segment-info">
+                    <span class="connector">➡</span>
+                    <span class="segment-details">
+                        <strong>{{ segment.distance }}</strong> ,
+                        <em>{{ segment.duration }}</em>
+
+
+                    </span>
+                </div>
+
+
+            </div>
+            {% endfor %}
+
+            <!-- Final Destination -->
+            <div class="trip-point destination">
+                <strong>Final Destination:</strong> {{ destination }}
+            </div>
+        </div>
+
+    </div>
+    <div class="maps-link">
+
+        <a href="{{ gmaps_url }}" target="_blank">View Trip on Google Maps</a>
+    </div>
+
+    <div class="messages">
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div id="hidden-need-refill" data-needs-refill="{{ needs_refill|yesno:'true,false' }}" style="display:none;"></div>
+
+
+    <script src="{% static 'refill/go_back_confirmation.js' %}"></script>
+    <script>
+
+        const needsRefill = document.getElementById("hidden-need-refill").dataset.needsRefill === 'true';
+    </script>
+</body>
+</html>  

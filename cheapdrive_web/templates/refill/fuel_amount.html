@@ -1,0 +1,89 @@
+<!-- fuel_amount.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'refill/fuel_amount.css' %}"> <!-- Link to external CSS -->
+    <title>Fuel Amount</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .slider-container {
+            margin-top: 20px;
+        }
+
+        .slider {
+            width: 100%;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+        }
+
+        .result {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="confirmationModal" style="display: none;">
+        <div class="modal-content">
+            <p>
+                Are you sure you want to leave this page? You will be redirected to the route choice page
+            </p>
+            <button id="confirmBack">Yes, leave</button>
+            <button id="cancelBack">Cancel</button>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Enter Fuel Quantity</h2>
+        <span> You can choose how much fuel you refill on the last station</span>
+        {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Slider for fuel quantity -->
+            <div class="slider-container">
+                <label for="fuel_quantity">Fuel Quantity (Liters):</label>
+                <input type="range" id="fuel_quantity" name="fuel_quantity" class="slider"
+                       min="{{ min_value }}" max="{{ max_value }}" value="{{ min_value }}" step="0.1"
+                       oninput="this.nextElementSibling.value = this.value">
+                <output>{{ min_value }}</output> L
+            </div>
+
+            <div>
+                <p class="result">
+                    Minimum Fuel: {{ min_value }} L <span class="info-icon">i<span class="tooltip">Refill needed at the last stop to reach your destination.<br /> 0.00 means refueling may not be required.</span></span><br>
+                    Maximum Fuel: {{ max_value }} L <span class="info-icon">i<span class="tooltip">Maximum fuel you can add <br> (Tank capacity - Fuel left at the last stop).</span></span>
+                </p>
+            </div>
+
+            <!-- Displaying last station details -->
+            <div class="station-info">
+                <h3>Last station Information</h3>
+                <p>Price: {{ gas_price }} {{ currency }}</p>
+                <p>Brand: {{ brand_name }}</p>
+                <p>Location: {{ address }} </p>
+            </div>
+
+            <div>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="{% static 'refill/go_back_confirmation.js' %}"></script>
+</body>
+</html>

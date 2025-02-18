@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Trip Help</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'entry/visit.css' %}">
+</head>
+<body>
+    <p>Hello dear user!!! I assume You would like to get some help in the road trip department. Thankfully, Cheapdrive is here with you.</p>
+    <div class="button-container">
+        <a href="{% url 'entry:login' %}"><button>Let's get going</button></a>
+    </div>
+</body>
+</html>

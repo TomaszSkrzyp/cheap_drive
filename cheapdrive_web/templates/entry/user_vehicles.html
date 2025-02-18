@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle History</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'entry/trip_history.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Vehicle History</h1>
+
+        {% if vehicle_data %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fuel Type</th>
+                    <th>Tank Size (L)</th>
+                    <th>Fuel Consumption (L/100km)</th>
+                    <th>Driving Condition</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle_entry in vehicle_data %}
+                <tr>
+                    <td>{{ vehicle_entry.fuel_type }}</td>
+                    <td>{{ vehicle_entry.tank_size }}</td>
+                    <td>{{ vehicle_entry.form_fuel_consumption }}</td>
+                    <td>{{ vehicle_entry.driving_conditions }}</td>
+
+                    <td class="action-btns">
+                        <a href="{% url 'refill:load_data' %}?vehicle_id={{vehicle_entry.id}}&trip_id=none" class="btn btn-action">
+                            Use Vehicle
+                        </a>
+                    </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        {% else %}
+        <p>No vehicle history found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

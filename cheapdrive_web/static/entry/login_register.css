@@ -1,0 +1,126 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+/* General form styles */
+.login-form, .register-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 550px;
+    max-width: 90%; /* Responsive */
+    text-align: center;
+}
+
+    .login-form label, .register-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+.form-input { /* Apply to input fields in both forms */
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+    margin-bottom: 10px; /*Consistent spacing*/
+}
+
+/*Button Styles (Common to both)*/
+.login-form button, .register-form button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+    .login-form button:hover, .register-form button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+    .remember-me input {
+        margin-right: 5px;
+        width: auto;
+        margin-bottom: 0;
+    }
+
+    .remember-me label {
+        display: inline;
+        margin-bottom: 0;
+    }
+
+.messages ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+.messages li {
+    padding: 5px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+}
+
+    .messages li.error {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .messages li.success {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+.guest-link {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+    .guest-link:hover {
+        background-color: #0056b3;
+    }
+.register-link {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.register-link:hover {
+    background-color: #218838;
+}

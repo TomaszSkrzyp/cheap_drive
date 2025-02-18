@@ -1,0 +1,65 @@
+from django.shortcuts import get_object_or_404
+from formatters.string_format import format_address, format_duration
+from api_calls.other_api_calls import get_address_from_coords
+from typing import Any, Dict, List, Optional, Tuple
+from entry.models import Station
+
+def process_route_display(trip: Any) -> Tuple[List[Dict[str, Any]], str]:
+    """
+    Processes trip data and generates trip segments for display, including origin, destination, 
+    distance, duration, and stations along the way. Also constructs a Google Maps URL with waypoints.
+
+    Args:
+        trip: The trip object containing details about the route and its TripNodes.
+
+    Returns:
+        tuple: A tuple (trip_segments, gmaps_url) where:
+            - trip_segments is a list of dictionaries with keys: origin, distance, duration, station, refill.
+            - gmaps_url is a string containing a URL for Google Maps directions.
+    """
+    current_node = trip.first_trip_node
+    trip_segments: List[Dict[str, Any]] = []
+    index = 0  # To track the node position
+    waypoint_coords: List[str] = []  # To store station coordinates for waypoints
+
+    # Traverse the linked list of TripNodes.
+    while current_node:
+        # For nodes other than the first, treat them as stations.
+        is_station = (index != 0)
+        station=None
+        # If it's a station, add its coordinates for the route's waypoint.
+        if is_station:
+            waypoint_coords.append(f"{current_node.origin.y},{current_node.origin.x}")
+        if is_station:
+            station=get_object_or_404(Station,id=current_node.station_id)
+            
+        # Build the segment dictionary.
+        segment = {
+            "origin": (
+                station.station_prices.brand_name.capitalize()+", "+station.address
+                if is_station
+                else trip.origin_address
+            ),
+            "distance": f"{current_node.distance:.2f} km" if current_node.distance != "N/A" else "N/A",
+            "duration": format_duration(current_node.duration) if current_node.duration != "N/A" else "N/A",
+            "station": is_station,
+            "refill": f"{current_node.fuel_refilled:.2f} L" if current_node.fuel_refilled is not None else "N/A",
+        }
+        trip_segments.append(segment)
+
+        # Move to the next node.
+        current_node = current_node.next_trip
+        index += 1
+
+    # Construct coordinates for origin and destination.
+    origin = trip.origin_address
+    destination = trip.destination_address
+    # Join waypoint coordinates with a pipe character.
+    waypoints = "|".join(waypoint_coords) if waypoint_coords else ""
+    # Build the Google Maps URL.
+    gmaps_url = (
+        f"https://www.google.com/maps/dir/?api=1&origin={origin}"
+        f"&destination={destination}&waypoints={waypoints}&travelmode=driving"
+    )
+
+    return trip_segments, gmaps_url

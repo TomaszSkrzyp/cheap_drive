@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Cost Calculator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'refill/load_data.css' %}">
+
+</head>
+<body>
+    <main>
+
+        <div id="loadingOverlay">
+            <div id="loadingSpinner"></div>
+            <span>Performing calculations. It might take a moment</span>
+        </div>
+
+        <h1>Type in your data</h1>
+
+        <form method="post" id="load-data-form">
+            {% csrf_token %}
+            <div class="two-column-container">
+                <div class="column left-column">
+
+                    {% for field in form %}
+                    {% if field.name == 'origin_address' or  field.name == 'tank_size' or  field.name == 'fuel_consumption_per_100km'  or field.name == 'driving_conditions'  %}
+                    {% if field.name == 'driving_conditions' %}
+                    <div class="form-group">
+                        <label>
+                            {{field.label}}:<span class="info-icon">
+                                                i<span class="tooltip">In case you are not sure choose Mixed Driving</span>
+                                            </span>
+
+                        </label>
+
+                        {{ field }}
+                    </div>
+                    {% else %}
+                    <div class="form-group">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}:
+                            {{ field }}
+                        </label>
+                        {% for error in field.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+
+                </div>
+                <div class="column right-column">
+
+                    {% for field in form %}
+                    {% if field.name == 'destination_address' or  field.name == 'fuel_type' or  field.name == 'price_of_fuel'  or  field.name == 'cur_fuel_percentage_check' or field.name == 'cur_fuel_liters_check' %}
+                    {% if field.name == 'cur_fuel_percentage_check' %}
+                    <div class="fuel-input-group">
+                        <label>
+                            {{ field }}<label for="id_cur_fuel_percentage">Current fuel (Percentage of tank size):</label> {{ form.cur_fuel_percentage }}<br>
+                            <span id="fuel-amount-display">0</span>
+                        </label>
+                    </div>
+                    {% elif field.name == 'cur_fuel_liters_check' %}
+                    <div class="fuel-input-group">
+                        <label>
+                            {{ field }}<label for="id_cur_fuel">Current fuel (Litres):</label> {{ form.cur_fuel }}<br>
+
+                        </label>
+                    </div>
+                    {% elif field.name == 'price_of_fuel' %}
+                    <div class="price-container">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}:
+                            <span class="info-icon">
+                                i<span class="tooltip">The price You paid for the last refill</span>
+                            </span>
+                        </label>
+                        <div class="input-select-group">
+                            {{ field }}
+                            <select id="id_currency" name="currency">
+                                {% for currency_code, currency_name in form.fields.currency.choices %}
+                                <option value="{{ currency_code }}">{{ currency_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="form-group">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}:
+                            {{ field }}
+                        </label>
+                        {% for error in field.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+
+                </div>
+            </div>
+        </form>
+
+        <button type="button" onclick="submitform();">Submit</button>
+        <div class="messages">
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </main>
+
+    <script src="{% static 'refill/fuel_input.js' %}"></script>
+
+    <script src="{% static 'refill/visualisation.js' %}"></script>
+    <script src="{% static 'refill/validation.js' %}"></script>
+</body>
+</html>

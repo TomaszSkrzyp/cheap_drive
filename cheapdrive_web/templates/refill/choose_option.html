@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Route Preference</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'refill/choose_option.css' %}"> <!-- Link to external CSS -->
+</head>
+<body>
+    <div class="container">
+        <h1>Choose Your Preferred Route</h1>
+        <p>Select the preferred route optimization:</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if routes.time and routes.time == routes.eff %}
+            <!-- If both Time and Efficiency routes are the same, show only one option -->
+            <div class="route-option">
+                <button type="submit" name="choice" value="time">Optimize by Time & Efficiency</button>
+                <p><strong>Time:</strong> {{ routes.time.duration }}</p>
+                <p><strong>Distance:</strong> {{ routes.time.distance }}</p>
+            </div>
+            {% else %}
+            <!-- Separate buttons for Time and Efficiency routes -->
+            {% if routes.time %}
+            <div class="route-option">
+                <button type="submit" name="choice" value="time">Optimize by Time</button>
+                <p><strong>Time:</strong> {{ routes.time.duration }}</p>
+                <p><strong>Distance:</strong> {{ routes.time.distance }}</p>
+            </div>
+            {% endif %}
+
+            {% if routes.eff %}
+            <div class="route-option">
+                <button type="submit" name="choice" value="eff">Optimize by Efficiency</button>
+                <p><strong>Time:</strong> {{ routes.eff.duration }}</p>
+                <p><strong>Distance:</strong> {{ routes.eff.distance }}</p>
+            </div>
+            {% endif %}
+            {% endif %}
+        </form>
+    </div>
+</body>
+</html>

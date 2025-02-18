@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logged Options</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'entry/logged.css' %}">
+
+</head>
+<body>
+    <h1>Welcome to the Trip Manager</h1>
+    <p>What would you like to do?</p>
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+
+            <button type="submit" name="action" value="new_trip">Set Up a New Trip</button>
+            <button type="submit" name="action" value="history">View Trip History</button>
+            <button type="submit" name="action" value="user_vehicles">View Your Vehicles</button>
+
+
+            <button type="submit" name="action" value="logout">Log Out</button>
+        </form>
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    
+</body>
+</html>
