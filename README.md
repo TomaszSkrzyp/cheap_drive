@@ -64,6 +64,7 @@ DB_HOST=your_db_host
 DB_PORT=your_db_port
 GDAL_INCLUDE_DIR=path_to_your_gdal_include
 GDAL_LIBRARY_PATH=path_to_your_gdal_library
+GEOS_LIBRARY_PATH=path_to_your_geos_library
 ```
 
 ### 5. Run Database Migrations

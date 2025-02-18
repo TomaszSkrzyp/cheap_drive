@@ -155,8 +155,10 @@ SESSION_COOKIE_AGE = int(env('SESSION_COOKIE_AGE'))
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 import os
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-os.environ['GDAL_INCLUDE_DIR'] = env("GDAL_INCLUDE_DIR", default="")
-GDAL_LIBRARY_PATH = "C:\OSGeo4W\bin\gdal309.dll"
+os.environ['GDAL_INCLUDE_DIR'] = env('GDAL_INCLUDE_DIR', default="")
+GDAL_LIBRARY_PATH = env('GDAL_LIBRARY_PATH',default="")
+
+GEOS_LIBRARY_PATH = env('GEOS_LIBRARY_PATH',default="")
 
 
 LOGGING_DIR = os.path.join(BASE_DIR, "logs")  # Create logs directory

@@ -1761,7 +1761,6 @@
     <Content Include=".venv\Scripts\python.exe" />
     <Content Include=".venv\Scripts\pythonw.exe" />
     <Content Include="app.yaml" />
-    <Content Include="cheapdrive_web\cheapdrive_website\.env" />
     <Content Include="cheapdrive_web\db_updates\__pycache__\entry_models_updates.cpython-311.pyc" />
     <Content Include="cheapdrive_web\db_updates\__pycache__\refill_model_updates.cpython-311.pyc" />
     <Content Include="cheapdrive_web\entry\forms.py" />
