@@ -10,7 +10,7 @@ logger = logging.getLogger("my_logger")
 def update_trip(trip_id: int, vehicle_id: int, tank_size: float, selected_route: dict) -> int:
     """
     Update an existing trip with new route nodes based on a selected route.
-    
+
     Args:
         trip_id (int): The ID of the trip to update.
         vehicle_id (int): The ID of the vehicle associated with the trip.
@@ -24,6 +24,7 @@ def update_trip(trip_id: int, vehicle_id: int, tank_size: float, selected_route:
         ValueError: If required parameters are missing.
         Http404: If the Trip, VehicleData, or Station is not found.
     """
+
     if not trip_id or not selected_route.get("station_ids") or not vehicle_id:
         raise ValueError("Missing required trip_id, vehicle_id, or station_ids in selected_route.")
     
@@ -79,7 +80,7 @@ def update_trip(trip_id: int, vehicle_id: int, tank_size: float, selected_route:
 def finish_updating(fuel_quantity: Decimal, last_node_id: int, last_distance: Decimal, last_duration: Decimal) -> None:
     """
     Finalize the update of a trip node with the provided fuel quantity, distance, and duration.
-    
+
     Args:
         fuel_quantity (Decimal): The amount of fuel refilled.
         last_node_id (int): The ID of the TripNode to update.

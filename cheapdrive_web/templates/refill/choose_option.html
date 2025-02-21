@@ -21,6 +21,7 @@
                 <button type="submit" name="choice" value="time">Optimize by Time & Efficiency</button>
                 <p><strong>Time:</strong> {{ routes.time.duration }}</p>
                 <p><strong>Distance:</strong> {{ routes.time.distance }}</p>
+                <p><strong>Number of stations:</strong> {{ routes.time.n_of_stations }}</p>
             </div>
             {% else %}
             <!-- Separate buttons for Time and Efficiency routes -->
@@ -29,6 +30,7 @@
                 <button type="submit" name="choice" value="time">Optimize by Time</button>
                 <p><strong>Time:</strong> {{ routes.time.duration }}</p>
                 <p><strong>Distance:</strong> {{ routes.time.distance }}</p>
+                <p><strong>Number of stations:</strong> {{ routes.time.n_of_stations }}</p>
             </div>
             {% endif %}
 
@@ -37,6 +39,7 @@
                 <button type="submit" name="choice" value="eff">Optimize by Efficiency</button>
                 <p><strong>Time:</strong> {{ routes.eff.duration }}</p>
                 <p><strong>Distance:</strong> {{ routes.eff.distance }}</p>
+                <p><strong>Number of stations:</strong> {{ routes.eff.n_of_stations }}</p>
             </div>
             {% endif %}
             {% endif %}

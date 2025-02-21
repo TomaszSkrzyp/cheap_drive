@@ -1,10 +1,10 @@
 import re
 
-from typing import  List, Any
 def scrape_query_paramaters(request_get: dict) -> tuple:
     """
-    Extract the vehicle_id and trip_id parameters from a query dictionary.
-    
+    Extract the `vehicle_id` and `trip_id` parameters from a query dictionary. 
+    Returns `None` for missing or invalid parameters.
+
     Args:
         request_get (dict): Dictionary-like object containing query parameters.
     
@@ -12,7 +12,7 @@ def scrape_query_paramaters(request_get: dict) -> tuple:
         tuple: A tuple (vehicle_id, trip_id). Missing parameters are returned as None.
     
     Raises:
-        TypeError: If request_get is not a dictionary.
+        TypeError: If `request_get` is not a dictionary.
         KeyError: If 'trip_id' or 'vehicle_id' is missing.
     """
     if not isinstance(request_get, dict):
@@ -29,26 +29,27 @@ def scrape_query_paramaters(request_get: dict) -> tuple:
     
     return vehicle_id, trip_id
 
- 
-        
-    
+
 def format_address(address: str) -> str:
     """
     Format an address string by cleaning, splitting, and reassembling its components.
-    
+    The address is split into parts, and the components (street name, street number, 
+    city, country) are correctly formatted and returned.
+
     Args:
-        address (str): The raw address string.
+        address (str): The raw address string to be formatted.
     
     Returns:
-        str: A formatted address string.
+        str: A formatted address string, reassembling its components (street, city, country).
     """
     parts = [p.strip() for p in address.split(",")]
     if len(parts) < 4:
         return address
 
     street_number, street_name = parts[1], parts[2]
-    country=parts[-1]
-    # If street_number is not a valid number, assume it is part of the street name.
+    country = parts[-1]
+    
+    # If street_number is not a valid number, assume it's part of the street name.
     if not re.match(r"^\d+(?:[-/;]\d+)?[A-Za-z]?$", street_number):
         street_name, street_number = street_number, ""
         street_name_index = 2  # Adjust index for city extraction.
@@ -72,13 +73,19 @@ def format_address(address: str) -> str:
 
 def format_duration(minutes: float) -> str:
     """
-    Format a duration given in minutes into a human-readable string.
-    
+    Convert a duration in minutes into a human-readable string format. The duration 
+    is presented in terms of days, hours, and minutes depending on the input.
+
     Args:
-        minutes (float): Duration in minutes.
+        minutes (float): The total duration in minutes.
     
     Returns:
-        str: A formatted string representing the duration.
+        str: A formatted string representing the duration in days, hours, and minutes.
+    
+    Example:
+        - For durations longer than 1440 minutes, the function returns days, hours, and minutes.
+        - For durations between 60 and 1440 minutes, the result is given in hours and minutes.
+        - For durations less than 60 minutes, the function returns the duration in minutes.
     """
     if minutes > 1440:  # More than one day.
         days = minutes // 1440

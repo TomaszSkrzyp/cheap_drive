@@ -9,10 +9,9 @@ from entry.models import Station
 from concurrent.futures import ThreadPoolExecutor
 from .calculate_consumption import estimate_fuel_consumption
 import logging
-
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
-from typing import Any, Dict, List, Optional, Tuple,Set
+from typing import Any, Dict, List, Optional, Tuple, Set
 
 logger = logging.getLogger("my_logger")
 
@@ -169,7 +168,7 @@ def determine_best_route(
     For each candidate route, this function validates segments using a full validation routine.
     It caches validation results for common segments across candidate routes to avoid redundant computations.
     This function also keeps track of stations that should not be chosen as first station as they previously failed
-    as starting station of a route(could not be reached from origin)
+    as starting station of a route (could not be reached from origin).
 
     Args:
         origin_coords: Coordinates of the origin.
@@ -180,7 +179,6 @@ def determine_best_route(
         optimal_fuel_consumption: The vehicle's optimal fuel consumption (liters/100km).
         tank_size: The vehicle's fuel tank capacity.
         starting_fuel: The fuel available at the start of the trip.
-        max_stations: Maximum number of stations allowed in a route (default is 6).
 
     Returns:
         Tuple:
@@ -250,11 +248,11 @@ def determine_best_route(
         )
 
         # Record the validation outcome for the segments and return true if the route has failed validation on the first station.
-        first_station_fail=save_failed_route(failed_last_node, route, failed_node_index )
+        first_station_fail = save_failed_route(failed_last_node, route, failed_node_index)
         if not valid:
-            logger.debug(f"Route {route_index} failed validation at segment {failed_node_index }.")
+            logger.debug(f"Route {route_index} failed validation at segment {failed_node_index}.")
             if first_station_fail:
-                logger.debug("First station fail: "+str(route[0]))
+                logger.debug("First station fail: " + str(route[0]))
                 failed_first_stations.add(route[0])
             
             continue
@@ -297,7 +295,7 @@ def determine_best_route(
         efficiency_improvement = None
         logger.debug("Not enough routes to calculate efficiency improvement.")
 
-    return best_route_duration, best_route_efficiency, efficiency_improvement,failed_first_stations
+    return best_route_duration, best_route_efficiency, efficiency_improvement, failed_first_stations
 
 
 def save_failed_route(
@@ -318,7 +316,7 @@ def save_failed_route(
             failed_last_node[node_key] = False
         else:
             failed_last_node[node_key] = True
-    if failed_at==0:
+    if failed_at == 0:
         return True
 
 
@@ -333,7 +331,8 @@ def route_validation(
 ) -> Tuple[bool, int]:
     """
     Fully validates a candidate route by checking fuel consumption across each segment,
-    ensuring that the remaining fuel always exceeds a computed safety margin.
+    ensuring that the remaining fuel
+
 
     Args:
         distances: List of distances for each segment.

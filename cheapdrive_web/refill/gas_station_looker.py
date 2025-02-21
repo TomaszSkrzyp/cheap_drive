@@ -4,9 +4,7 @@ import math
 from concurrent.futures import ThreadPoolExecutor
 from django.contrib.gis.measure import D
 from django.contrib.gis.geos import Point
-from django.db.models import Q
 from api_calls.api_calculations import get_coordinates
-from refill.route_choice import estimate_fuel_consumption
 from entry.models import Station
 import logging
 
@@ -259,22 +257,30 @@ def find_best_gas_stations(
     station and updating the origin accordingly. The recursion stops when either enough candidate routes (up to top_n)
     are found or when the number of accumulated stations reaches max_stations.
     
+   
     Args:
-        origin: Tuple (latitude, longitude) of the starting point.
-        destination: Tuple (latitude, longitude) of the destination.
-        estimated_range: Initial search range in kilometers from the origin.
-        full_tank_range: Maximum distance in kilometers the vehicle can travel on a full tank.
-        stations_not_to_start_with: A set of station IDs that have previously failed as starting stations and
-            should not be used as the first station in a route.
-        successful_routes: Previously accumulated candidate routes (each route is a list of station IDs).
-        other_stops: List of additional station tuples (aside from the closest) available from the query.
-        stations_along: List of station IDs accumulated so far along the route.
-        top_n: Desired number of candidate routes at the current recursion level.
-        max_stations: Maximum allowed number of stations to accumulate before aborting recursion.
-    
+        origin: A tuple of latitude and longitude representing the starting point.
+        destination: A tuple of latitude and longitude representing the destination point.
+        estimated_range: The initial search range (in km) from the origin to start looking for stations.
+        full_tank_range: The maximum distance (in km) the vehicle can travel on a full tank.
+        stations_not_to_start_with: A set of station IDs that have previously failed or should not be used as starting stations.
+        successful_routes: An optional list of previously found successful routes.
+        other_stops: Optional additional stops that might be relevant for the journey.
+        stations_along: Optional list of station IDs used so far in the current route.
+        top_n: The number of top routes to return (default is 5).
+        max_stations: The maximum number of stations to consider before stopping the search (default is 100).
+
     Returns:
-        A list of candidate routes (each route is a list of station IDs) if valid routes are found; otherwise, None.
+        A list of lists, where each inner list contains station IDs representing a successful route. 
+        Returns None if no successful routes are found.
+    
+    Notes:
+        The function works by iteratively finding stations within the range and filtering them based on their proximity 
+        to the origin, detour distance, and whether they have been previously used or failed. If enough valid routes 
+        are not found, the function will relax the criteria and continue the search.
     """
+    # Function implementation here
+
     # Initialize mutable parameters if not provided.
     if successful_routes is None:
         successful_routes = []

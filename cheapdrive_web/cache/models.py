@@ -6,6 +6,17 @@ from django.utils import timezone
 class Cache(models.Model):
     """
     Custom cache model that will store cache data.
+
+    Attributes:
+        key (str): A unique key used to identify the cache entry.
+        value (dict): The cached data stored in JSON format.
+        created_at (datetime): The timestamp when the cache entry was created.
+        updated_at (datetime): The timestamp when the cache entry was last updated.
+        timeout (int): The expiration time (in seconds) for the cache entry.
+
+    Methods:
+        is_expired: Checks if the cache has expired based on the timeout.
+        __str__: Returns a string representation of the Cache object, displaying the cache key.
     """
     key = models.CharField(max_length=255, unique=True)
     value = models.JSONField()  # or TextField depending on your data format

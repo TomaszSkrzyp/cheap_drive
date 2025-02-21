@@ -9,9 +9,15 @@ def update_brand_prices() -> None:
     """
     Update or create StationPrices objects for a predefined list of fuel station brands by scraping their prices
     from an external website.
+
+    Args:
+        None
     
     Returns:
         None
+
+    Raises:
+        Exception: If an error occurs while updating the prices for any station brand.
     """
     brands = [
         "circle-k-statoil", "orlen", "shell", "amic", "lotos", "lotos-optima", "bp",
@@ -54,11 +60,18 @@ def update_brand_prices() -> None:
 def update_station_objects() -> list:
     """
     Retrieve fuel station data from the Overpass API and update/create corresponding Station objects in the database. 
-    Estimated address is taken from api-based function get_address_from_coords
+    Estimated address is taken from an API-based function get_address_from_coords.
+
+    Args:
+        None
     
     Returns:
         list: A list of Station objects that were created or updated.
+
+    Raises:
+        StationPrices.DoesNotExist: If the station price for a brand is not found.
     """
+
     brand_names = [
         "circle k", "orlen", "shell", "amic", "lotos", "lotos-optima", "bp", "moya",
         "auchan", "tesco", "carrefour", "olkop", "leclerc", "intermarche",

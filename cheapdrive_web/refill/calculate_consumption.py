@@ -9,7 +9,8 @@ def estimate_fuel_consumption(
 ) -> Decimal:
     """
     Estimate the fuel consumption adjustment factor based on the speed of the vehicle.
-    
+    The adjustment factor depends on whether the current speed is below, within, or above the optimal speed range.
+
     Args:
         v (float): The current speed of the vehicle.
         v_optimal_1 (float, optional): Lower optimal speed threshold. Defaults to 60.

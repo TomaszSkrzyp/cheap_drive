@@ -11,7 +11,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from api_calls.api_exceptions import AddressError
 from .calculate_consumption import calculate_form_fuel_consumption, calculate_real_fuel_consumption, need_refill, estimate_fuel_consumption
-
 from .route_choice import determine_best_route
 from db_updates.refill_model_updates import finish_updating, update_trip
 from .models import VehicleData, Trip
@@ -22,12 +21,18 @@ from formatters.string_format import format_duration, scrape_query_paramaters
 from entry.models import Station
 from .process_results_display import process_route_display
 
-
+# Initialize logger for debugging purposes
 logger = logging.getLogger("my_logger")
 
 def validate_fuel_data(tank_size: float, cur_fuel: float, fuel_input_type: str, cur_fuel_percentage: float) -> None:
     """
     Validates fuel-related data.
+
+    Args:
+        tank_size: The size of the fuel tank (in liters).
+        cur_fuel: The current fuel level (in liters).
+        fuel_input_type: Type of input for fuel data ('liters' or 'percentage').
+        cur_fuel_percentage: The current fuel level as a percentage (only if input_type is 'percentage').
 
     Raises:
         ValidationError: If any of the fuel data is invalid.
@@ -38,7 +43,6 @@ def validate_fuel_data(tank_size: float, cur_fuel: float, fuel_input_type: str, 
         raise ValidationError("Current fuel cannot be negative.")
     if fuel_input_type == 'percentage' and not (0 <= cur_fuel_percentage <= 100):
         raise ValidationError("Fuel percentage must be between 0 and 100.")
-
 
 @csrf_exempt
 def load_data(request: HttpRequest) -> HttpResponse:
@@ -62,7 +66,6 @@ def load_data(request: HttpRequest) -> HttpResponse:
 
     return _render_form(request, trip, vehicle)
 
-
 def _handle_post_request(request: HttpRequest, trip: Optional[Trip], vehicle: Optional[VehicleData]) -> HttpResponse:
     """
     Processes the POST request from the load_data form.
@@ -79,9 +82,10 @@ def _handle_post_request(request: HttpRequest, trip: Optional[Trip], vehicle: Op
         cur_fuel: float = float(form_data['cur_fuel'])
         validate_fuel_data(float(form_data['tank_size']), cur_fuel, fuel_input_type, form_data['cur_fuel_percentage'])
 
+        # Create vehicle and trip, handling any errors
         user = request.user if request.user.is_authenticated else None
         guest_id = request.session.session_key if not user else None
-        vehicle_id = create_vehicle(form_data['tank_size'], form_data['fuel_type'], form_data['driving_conditions'],form_data['fuel_consumption_per_100km'])
+        vehicle_id = create_vehicle(form_data['tank_size'], form_data['fuel_type'], form_data['driving_conditions'], form_data['fuel_consumption_per_100km'])
         vehicle = VehicleData.objects.get(id=vehicle_id) if vehicle_id else None
         if not vehicle:
             return _handle_error(request, "Vehicle creation failed", form, vehicle, trip)
@@ -104,11 +108,13 @@ def _handle_post_request(request: HttpRequest, trip: Optional[Trip], vehicle: Op
             vehicle.user = user
             vehicle.save()
 
+        # Handle the refill check
         if need_refill(trip.fuel_left(), 0.1, vehicle.tank_size):
             vehicle.need_refill = True
             vehicle.save()
             return redirect(f"{reverse('refill:refill_management')}?vehicle_id={vehicle_id}&trip_id={trip_id}")
 
+        # Allow access to refill views
         request.session['allowed_to_access_refill_views'] = True
         request.session['distance_coeff'] = 1.2
         return redirect(f"{reverse('refill:results')}?vehicle_id={vehicle_id}&trip_id={trip_id}")
@@ -122,7 +128,6 @@ def _handle_post_request(request: HttpRequest, trip: Optional[Trip], vehicle: Op
     except Exception as e:
         logger.exception("Unexpected Error:")
         return _handle_error(request, f"An unexpected error occurred: {e}", form, vehicle, trip)
-
 
 def _render_form(request: HttpRequest, trip: Optional[Trip], vehicle: Optional[VehicleData],
                  form: Optional[LoadDataForm] = None) -> HttpResponse:
@@ -149,7 +154,7 @@ def _render_form(request: HttpRequest, trip: Optional[Trip], vehicle: Optional[V
         initial_data.update({
             'tank_size': vehicle.tank_size,
             'fuel_type': vehicle.fuel_type,
-            'fuel_consumption_per_100km': calculate_form_fuel_consumption(vehicle.driving_conditions,vehicle.fuel_consumption_per_100km),
+            'fuel_consumption_per_100km': calculate_form_fuel_consumption(vehicle.driving_conditions, vehicle.fuel_consumption_per_100km),
             'driving_conditions': vehicle.driving_conditions,
         })
     form = form or LoadDataForm(initial=initial_data)
@@ -158,7 +163,6 @@ def _render_form(request: HttpRequest, trip: Optional[Trip], vehicle: Optional[V
         'trip_id': trip.id if trip else None,
         'form': form,
     })
-
 
 def _handle_error(request: HttpRequest, message: str, form: Optional[LoadDataForm] = None,
                   vehicle: Optional[VehicleData] = None, trip: Optional[Trip] = None) -> HttpResponse:
@@ -178,21 +182,11 @@ def _handle_error(request: HttpRequest, message: str, form: Optional[LoadDataFor
     messages.error(request, message)
     return _render_form(request, trip, vehicle, form)
 
-
 @csrf_exempt
 def refill_management(request: HttpRequest) -> HttpResponse:
     """
     Handles the refill management view by extracting parameters, computing route metrics, 
     and determining the optimal gas station route.
-
-    This function extracts query parameters from the request, retrieves the associated
-    Trip and VehicleData objects, computes key distances and fuel metrics, and attempts 
-    up to three times to find a valid gas station route by adjusting the estimated drive range. 
-    Once a valid route is determined based on time and efficiency, it stores the route details 
-    in the session and redirects the user to the choose option view. If any step fails, it 
-    redirects the user to the load data view with an error message. This function also keeps 
-    track of stations that should not be chosen as first station as they previously failed
-    as starting station of a route(could not be reached from origin)
 
     Args:
         request (HttpRequest): The HTTP request containing query parameters for vehicle_id and trip_id.
@@ -341,11 +335,14 @@ def choose_option(request: HttpRequest) -> HttpResponse:
             'time': {
                 'duration': format_duration(sum(best_route_by_time.get('durations', []))),
                 'distance': f"{sum(best_route_by_time.get('distances', [])):.2f} km",
+                'n_of_stations': len(best_route_by_time.get('station_ids', [])),
                 'data': best_route_by_time
             },
             'eff': {
                 'duration': format_duration(sum(best_route_by_eff.get('durations', []))),
                 'distance': f"{sum(best_route_by_eff.get('distances', [])):.2f} km",
+                
+                'n_of_stations': len(best_route_by_eff.get('station_ids', [])),
                 'data': best_route_by_eff
             }
         }
@@ -367,50 +364,64 @@ def choose_option(request: HttpRequest) -> HttpResponse:
         "routes": routes,
         "improvement": improvement,
     })
-
-
 def process_fuel_amount(request: HttpRequest) -> HttpResponse:
     """
-    Processes fuel refill input from the user.
+    Processes the user's input for the amount of fuel to be refilled during a trip.
 
-    GET: Retrieves the selected route and computes the minimum and maximum refill amounts.
-    POST: Validates the fuel quantity, updates the trip data, and redirects to the results view.
+    - **GET**: Retrieves the selected route and computes the minimum and maximum refill amounts based on the remaining fuel, vehicle tank capacity, and estimated fuel consumption.
+    - **POST**: Validates the user-provided fuel quantity, updates the trip details, and redirects to the results page.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing session data and user input.
 
     Returns:
-        HttpResponse: A rendered page for fuel input or a redirection after processing.
+        HttpResponse: A rendered page for fuel input or a redirection to another page after processing.
+
+    Side Effects:
+        - Updates session data with fuel refill values.
+        - May trigger a redirect if an error occurs.
     """
     vehicle_id: Optional[str] = request.GET.get('vehicle_id')
     trip_id: Optional[str] = request.GET.get('trip_id')
 
+    # Validate vehicle and trip IDs
     if not vehicle_id or not trip_id:
         messages.error(request, "Missing vehicle or trip ID.")
         return redirect(reverse('refill:load_data'))
 
+    # Process GET request to calculate fuel refill range
     if request.method == 'GET' and request.session.get('trip_status') != 'updated':
         selected_route: Optional[Dict[str, Any]] = request.session.get('selected_route')
         if not selected_route:
             messages.error(request, "No selected route found. Redirecting to load data.")
             return redirect(reverse('refill:load_data'))
+
+        # Fetch vehicle and trip data from the database
         vehicle: VehicleData = get_object_or_404(VehicleData, id=vehicle_id)
         trip: Trip = get_object_or_404(Trip, id=trip_id)
-        
+
         try:
+            # Extract data from the selected route and calculate fuel-related values
             last_distance: float = selected_route['distances'][-1]
             last_duration: float = selected_route['durations'][-1]
             last_station: Station = get_object_or_404(Station, id=selected_route['station_ids'][-1])
             last_station_price: Any = vehicle.get_fuel_price_for_station(last_station)
             last_station_currency: str = last_station.station_prices.currency
             last_station_brand_name: str = last_station.station_prices.brand_name
-            last_station_address=last_station.address
+            last_station_address = last_station.address
+
+            # Update trip status and calculate fuel needed
             last_node_id: Any = update_trip(trip_id, vehicle_id, vehicle.tank_size, selected_route)
             fuel_left: float = float(trip.fuel_left())
-            
+
             logger.debug(f"Fuel left: {fuel_left}")
             estimated_consumption: float = float(estimate_fuel_consumption((last_distance / last_duration) * 60) * vehicle.fuel_consumption_per_100km)
-            #Display 0.00 in case no fuel needs to be added. Typically when the algo is too safe
-            min_fuel: float = round(max(last_distance * estimated_consumption / 100 - fuel_left, 0.00),2)
-            #Dipslay tank size if more fuel than tank size needs to be added. Will never happen, but just to be safe it's here 
-            max_fuel: float = round(min(vehicle.tank_size - fuel_left , vehicle.tank_size),2)
+            
+            # Ensure the fuel range is reasonable
+            min_fuel: float = round(max(last_distance * estimated_consumption / 100 - fuel_left, 0.00), 2)
+            max_fuel: float = round(min(vehicle.tank_size - fuel_left, vehicle.tank_size), 2)
+
+            # Store calculated values in the session
             request.session.update({
                 'min_fuel': min_fuel,
                 'max_fuel': max_fuel,
@@ -423,44 +434,47 @@ def process_fuel_amount(request: HttpRequest) -> HttpResponse:
                 'last_station_price': float(last_station_price),
                 'last_station_currency': last_station_currency,
                 'last_station_brand_name': last_station_brand_name,
-                'last_station_address': last_station.address
+                'last_station_address': last_station_address
             })
         except (IndexError, ValueError) as e:
             messages.error(request, f"Error processing route data: {str(e)}")
             return redirect(reverse('refill:load_data'))
+
+    # Process POST request to validate and apply the fuel quantity
     elif request.method == 'POST' and request.session.get('trip_status') == 'updated':
-        
         request.session['trip_status'] = 'not_updated'
+
         try:
             fuel_quantity: float = float(request.POST.get('fuel_quantity', 0))
             min_fuel: Optional[float] = request.session.get('min_fuel')
             max_fuel: Optional[float] = request.session.get('max_fuel')
+
+            # Validate fuel limits
             if min_fuel is None or max_fuel is None:
                 messages.error(request, "Fuel limits not set. Please retry.")
                 return redirect(reverse('refill:load_data'))
+
+            # Check if the fuel quantity is within the allowed range
             if min_fuel <= fuel_quantity <= max_fuel:
                 request.session['allowed_to_access_refill_views'] = True
                 logger.debug("Trip updated")
-                finish_updating(
-                    fuel_quantity,
-                    request.session['last_node_id'],
-                    request.session['last_distance'],
-                    request.session['last_duration']
-                )
+
+                # Finalize the trip update and redirect to the results view
+                finish_updating(fuel_quantity, request.session['last_node_id'], request.session['last_distance'], request.session['last_duration'])
                 return redirect(f"{reverse('refill:results')}?vehicle_id={vehicle_id}&trip_id={trip_id}")
+
             messages.error(request, "Invalid fuel quantity. Please enter a value within range.")
         except ValueError:
             messages.error(request, "Invalid input. Please enter a valid number.")
     else:
-        messages.error(request,"Route is missing. Try again")
+        messages.error(request, "Route is missing. Try again.")
         return redirect(f"{reverse('refill:load_data')}?vehicle_id={vehicle_id}&trip_id={trip_id}")
 
+    # Render the fuel input page with the calculated values
     return render(request, 'refill/fuel_amount.html', {
         'gas_price': request.session.get('last_station_price', "N/A"),
         'currency': request.session.get('last_station_currency', "N/A"),
-        
         'address': request.session.get('last_station_address', "N/A"),
-       
         'brand_name': request.session.get('last_station_brand_name', "N/A").capitalize(),
         'min_value': request.session.get('min_fuel', 0),
         'max_value': request.session.get('max_fuel', 0),
@@ -468,29 +482,32 @@ def process_fuel_amount(request: HttpRequest) -> HttpResponse:
 
 def results(request: HttpRequest) -> HttpResponse:
     """
-    Renders the final results view displaying trip details and statistics.
+    Displays the final results page showing trip details and statistics.
 
-    This view checks if the user is authorized (via a session flag) to access the results.
-    It then extracts vehicle and trip IDs from the query parameters, retrieves the corresponding
-    trip and vehicle data, computes cost and trip details (including generating a Google Maps URL),
-    and finally renders the results page.
+    - Verifies if the user is authorized to view the results based on session data.
+    - Retrieves vehicle and trip data using the IDs provided in the query parameters.
+    - Calculates and displays the total cost for fuel, trip details, and a Google Maps route.
 
     Args:
-        request (HttpRequest): The HTTP request object.
+        request (HttpRequest): The HTTP request object containing the vehicle and trip IDs.
 
     Returns:
-        HttpResponse: The rendered results page.
+        HttpResponse: The rendered results page with trip and vehicle data.
+
+    Side Effects:
+        - Resets session flags to prevent unauthorized re-access to the results view.
+        - May trigger a redirect if an error occurs.
     """
-    # Check if the session allows access to refill views.
+    # Check if the session allows access to the results page
     if not request.session.get('allowed_to_access_refill_views', True):
         messages.error(request, "You are not authorized to access this page.")
         return redirect(reverse('refill:load_data'))
 
-    # Reset the session flag to prevent unauthorized re-access.
+    # Reset the session flag to prevent unauthorized re-access
     request.session['allowed_to_access_refill_views'] = False
 
     try:
-        # Extract vehicle and trip IDs from the query parameters.
+        # Extract vehicle and trip IDs from the query parameters
         vehicle_id, trip_id = scrape_query_paramaters(request.GET)
     except KeyError as e:
         messages.error(request, f"Invalid query parameters: {e}")
@@ -501,18 +518,18 @@ def results(request: HttpRequest) -> HttpResponse:
         logger.exception("Unexpected Error:")
         return redirect(reverse('refill:load_data'))
 
-    # Retrieve the Trip and VehicleData objects using the extracted IDs.
-    trip: Trip = get_object_or_404(Trip, id=trip_id) if trip_id else None  # type: ignore
-    vehicle: VehicleData = get_object_or_404(VehicleData, id=vehicle_id) if vehicle_id else None  # type: ignore
+    # Retrieve the Trip and VehicleData objects
+    trip: Trip = get_object_or_404(Trip, id=trip_id) if trip_id else None
+    vehicle: VehicleData = get_object_or_404(VehicleData, id=vehicle_id) if vehicle_id else None
 
-    # Compute cost details for fuel bought and used during the trip.
+    # Compute cost details for fuel bought and used during the trip
     cost_bought, cost_used = trip.total_price_bought_and_used()
     logger.debug(f"Total costs: Bought: {cost_bought}, Used: {cost_used}")
 
-    # Process trip segments to obtain display details and a Google Maps URL.
+    # Process trip segments and generate Google Maps URL
     trip_segments, gmaps_url = process_route_display(trip)
 
-    # Build the context dictionary with all required trip and vehicle details.
+    # Build the context dictionary for rendering
     context: Dict[str, Any] = {
         "trip_id": trip_id,
         "vehicle_id": vehicle_id,
@@ -528,5 +545,5 @@ def results(request: HttpRequest) -> HttpResponse:
         "gmaps_url": gmaps_url,
     }
 
-    # Render the results template with the context data.
+    # Render the results page with the calculated trip and vehicle details
     return render(request, "refill/results.html", context)

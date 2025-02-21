@@ -8,21 +8,26 @@ from django.contrib.gis.geos import Point
 from django.db import transaction
 import logging
 from decimal import Decimal
+
 logger = logging.getLogger("my_logger")
 
 def create_node(origin, destination, distance: Decimal, duration: Decimal, currency: str,
-                price: Decimal, fuel_refilled: Decimal, station_id: int =None):
+                price: Decimal, fuel_refilled: Decimal, station_id: int = None):
     """
     Create and return a new TripNode instance with the provided parameters.
     
+    This function takes the origin, destination, distance, duration, currency, price of fuel, and fuel refilled
+    and creates a new TripNode in the database to represent a segment of the trip.
+    
     Args:
-        origin (Point): The starting geographic point.
-        destination (Point): The destination geographic point.
-        distance (Decimal): The distance covered in this node.
+        origin (Point): The starting geographic point (as a Django GIS Point object).
+        destination (Point): The destination geographic point (as a Django GIS Point object).
+        distance (Decimal): The distance covered in this node, expressed as a decimal (in km).
         duration (Decimal): The duration (in minutes) of this node.
-        currency (str): Currency code for the monetary values.
+        currency (str): Currency code for the monetary values (e.g., 'USD').
         price (Decimal): The fuel price per liter at the beginning of this node.
         fuel_refilled (Decimal): The amount of fuel added at the beginning of this node.
+        station_id (int, optional): ID of the fuel station (default is None).
     
     Returns:
         TripNode: The newly created TripNode instance.
@@ -53,22 +58,22 @@ def create_trip(origin: str, destination: str, currency: str, user, guest_id: st
       - Wrapping database operations in an atomic transaction.
     
     Args:
-        origin (str): The original starting address.
-        destination (str): The original destination address.
-        currency (str): Currency code for the trip.
-        user (User): The user associated with the trip.
-        guest_id (str): Guest session identifier (if applicable).
-        vehicle_id (int): The primary key for the associated VehicleData.
-        cur_fuel (Decimal): The current fuel level for the trip node.
+        origin (str): The original starting address of the trip.
+        destination (str): The original destination address of the trip.
+        currency (str): Currency code for the trip (e.g., 'USD').
+        user (User): The user associated with the trip (Django User model).
+        guest_id (str): Guest session identifier if the user is not logged in.
+        vehicle_id (int): The primary key of the associated VehicleData.
+        cur_fuel (Decimal): The current fuel level at the start of the trip.
         price_of_fuel (Decimal): The fuel price per liter.
     
     Returns:
         int: The ID of the created Trip.
     
     Raises:
-        AddressError: If address validation fails.
+        AddressError: If address validation fails or external APIs cannot calculate trip details.
         ValidationError: If model validation fails.
-        ValueError: If trip details cannot be determined.
+        ValueError: If trip details cannot be determined (e.g., no distance or duration).
     """
     try:
         # Validate addresses and retrieve trip details.
@@ -116,16 +121,18 @@ def create_trip(origin: str, destination: str, currency: str, user, guest_id: st
         raise e
 
 
-def create_vehicle(tank_size: float, fuel_type: str,driving_conditions: str,form_fuel_consumption: Decimal, ) -> int:
+def create_vehicle(tank_size: float, fuel_type: str, driving_conditions: str, form_fuel_consumption: Decimal) -> int:
     """
     Create a new VehicleData instance with the given parameters.
     
+    This function creates a new vehicle entry in the database using information such as the fuel tank size,
+    fuel type, driving conditions, and the fuel consumption stated by the user.
+    
     Args:
         tank_size (float): The size of the vehicle's fuel tank in liters.
-        fuel_type (str): The type of fuel used by the vehicle.
-        driving_conditions (str): Typical driving conditions of the car. Used in calculating optimal fuel consumption
-        form_fuel_consumption(Decimal): Fuel consumption per 100 km stated in the form by the user
-        
+        fuel_type (str): The type of fuel used by the vehicle (e.g., 'petrol', 'diesel').
+        driving_conditions (str): The typical driving conditions (e.g., 'city', 'highway', 'mixed').
+        form_fuel_consumption (Decimal): The fuel consumption per 100 km as stated by the user.
     
     Returns:
         int: The ID of the created VehicleData instance, or None if validation fails.
