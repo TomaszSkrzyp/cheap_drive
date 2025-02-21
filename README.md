@@ -1,7 +1,7 @@
 # 🚗 CheapDrive
 CheapDrive is a **Django-based web application** designed to help users find the **optimal driving routes** that include necessary **fuel stops**. Whether you're concerned about **saving time** or maximizing **fuel efficiency**, the app can calculate the best route for your journey based on either factor. It also provides **real-time gas prices** sourced from a **PostgreSQL database** with **PostGIS** integration for geographic calculations.
 
-With **advanced trip cost estimations**, CheapDrive can calculate the potential cost of your journey by considering both **time** and **fuel consumption**. The app reduces unnecessary load on external APIs by **caching frequently requested routes for up to 2 hours**, ensuring faster responses for commonly traveled paths, yet still keeping results realively recent. 
+With **advanced trip cost estimations**, CheapDrive can calculate the potential cost of your journey by considering both **time** and **fuel consumption**. The app reduces unnecessary load on external APIs by **caching frequently requested trip segments for up to 2 hours**, ensuring faster responses for commonly traveled paths, yet still keeping results realively recent. 
 
 **cheap_drive** consists of three apps and one key folder:
 
