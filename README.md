@@ -1,7 +1,7 @@
 # 🚗 CheapDrive
 CheapDrive is a **Django-based web application** designed to help users find the **optimal driving routes** that include necessary **fuel stops**. Whether you're concerned about **saving time** or maximizing **fuel efficiency**, the app can calculate the best route for your journey based on either factor. It also provides **real-time gas prices** sourced from a **PostgreSQL database** with **PostGIS** integration for geographic calculations.
 
-With **advanced trip cost estimations**, CheapDrive can calculate the potential cost of your journey by considering both **time** and **fuel consumption**. The app reduces unnecessary load on external APIs by **caching frequently requested routes for up to 2 hours**, ensuring faster responses for commonly traveled paths. 
+With **advanced trip cost estimations**, CheapDrive can calculate the potential cost of your journey by considering both **time** and **fuel consumption**. The app reduces unnecessary load on external APIs by **caching frequently requested routes for up to 2 hours**, ensuring faster responses for commonly traveled paths, yet still keeping results realively recent. 
 
 ---
 
@@ -71,7 +71,7 @@ Create a `.env` file in the root directory of the project and define the followi
  ```bash
  SECRET_KEY=your_secret_key
  DEBUG=True  # Set to False in production for better security
- SESSION_COOKIE_AGE=3600  # Example: Set session timeout to 1 hour
+ SESSION_COOKIE_AGE=600  # Example: Set session timeout to 10 minutes
  DB_NAME=your_database_name
  DB_USER=your_db_user_name
  DB_PASSWORD=your_db_password
@@ -87,7 +87,7 @@ Run the database migrations to set up the necessary tables:
 
  ```bash
  cd cheapdrive_web
- python manage.py make_migrations
+ python manage.py makemigrations
  python manage.py migrate
  ```
 
