@@ -5,13 +5,13 @@ With **advanced trip cost estimations**, CheapDrive can calculate the potential 
 
 **CheapDrive** consists of three apps and one key folder:
 
--**cache** app manages caching of previously calculated trip segments
+- **cache** app manages caching of previously calculated trip segments
 
--**refill** app manages display of trip finding, user input and trip calculations
+- **refill** app manages display of trip finding, user input and trip calculations
 
--**entry** app manages functionalities connected with user authentication and user's previous trips
+- **entry** app manages functionalities connected with user authentication and user's previous trips
 
--**api_calls** folder contains key api-related functions used both in trip calculations and database updating
+- **api_calls** folder contains key api-related functions used both in trip calculations and database updating
 
 ---
 
