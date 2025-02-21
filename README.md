@@ -3,7 +3,7 @@ CheapDrive is a **Django-based web application** designed to help users find the
 
 With **advanced trip cost estimations**, CheapDrive can calculate the potential cost of your journey by considering both **time** and **fuel consumption**. The app reduces unnecessary load on external APIs by **caching frequently requested trip segments for up to 2 hours**, ensuring faster responses for commonly traveled paths, yet still keeping results realively recent. 
 
-**cheap_drive** consists of three apps and one key folder:
+**CheapDrive** consists of three apps and one key folder:
 
 -**cache** app manages caching of previously calculated trip segments
 
