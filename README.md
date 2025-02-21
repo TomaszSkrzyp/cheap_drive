@@ -87,6 +87,7 @@ Run the database migrations to set up the necessary tables:
 
  ```bash
  cd cheapdrive_web
+ python manage.py make_migrations
  python manage.py migrate
  ```
 
