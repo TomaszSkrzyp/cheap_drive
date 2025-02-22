@@ -32,7 +32,7 @@ With **advanced trip cost estimations**, CheapDrive can calculate the potential 
 Start by cloning the repository to your local machine:
 
 ```bash
- git clone https://github.com/TomaszSkrzyp/cheapdrive.git
+ git clone https://github.com/TomaszSkrzyp/cheap_drive.git
  cd cheapdrive
  ```
 
